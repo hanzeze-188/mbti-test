@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 性格评估</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 环境光源 -->
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <!-- 颗粒纹理覆盖层 -->
+    <div class="noise-overlay"></div>
+
+    <!-- ==================== 开场页 ==================== -->
+    <main class="container" id="welcome-page">
+        <div class="welcome-content">
+            <div class="welcome-emblem">
+                <span class="emblem-line"></span>
+                <span class="emblem-diamond">◇</span>
+                <span class="emblem-line"></span>
+            </div>
+            <h1 class="welcome-title">
+                <span class="title-line">探索你的</span>
+                <span class="title-line title-emph">性格类型</span>
+            </h1>
+            <p class="welcome-subtitle">
+                基于荣格心理学理论的经典 MBTI 性格评估测试
+            </p>
+            <div class="welcome-stats">
+                <div class="stat-card">
+                    <span class="stat-value">93%</span>
+                    <span class="stat-label">科学准确率</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-card">
+                    <span class="stat-value">5 min</span>
+                    <span class="stat-label">约需时间</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-card">
+                    <span class="stat-value">60</span>
+                    <span class="stat-label">精选题数</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-large" onclick="startTest()">
+                <span>开始测试</span>
+                <svg class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <p class="welcome-hint">共 60 道题目，请根据第一反应作答</p>
+
+            <!-- 保存结果入口 -->
+            <div class="saved-result hidden" id="saved-result">
+                <div class="saved-divider"></div>
+                <div class="saved-header">
+                    <span class="saved-dot"></span>
+                    <span class="saved-label">上次测试结果</span>
+                </div>
+                <button class="saved-body" onclick="viewSavedResult()">
+                    <div class="saved-type-mini" id="saved-type-mini"></div>
+                    <div class="saved-meta">
+                        <span class="saved-title" id="saved-title"></span>
+                        <span class="saved-date" id="saved-date"></span>
+                    </div>
+                    <svg class="saved-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== 测试页 ==================== -->
+    <main class="container hidden" id="test-page">
+        <header class="test-header">
+            <div class="header-inner">
+                <div class="progress-info">
+                    <span class="progress-text" id="progress-text">1 / 60</span>
+                    <span class="progress-pct" id="progress-percent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="header-row">
+                    <div class="dimension-pills" id="dimension-pills">
+                        <span class="dim-pill" data-dim="EI">EI</span>
+                        <span class="dim-pill" data-dim="SN">SN</span>
+                        <span class="dim-pill" data-dim="TF">TF</span>
+                        <span class="dim-pill" data-dim="JP">JP</span>
+                    </div>
+                    <button class="btn-sheet" onclick="toggleAnswerSheet()" title="答题卡">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                        <span>答题卡</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="question-stage" id="question-stage">
+            <div class="question-area" id="question-area">
+                <div class="question-meta">
+                    <span class="question-number" id="q-number-display">01</span>
+                    <span class="question-dimension" id="q-dimension">EI</span>
+                    <button class="btn-back hidden" id="prev-btn" onclick="goBack()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        <span>上一题</span>
+                    </button>
+                </div>
+                <p class="question-text" id="question-text"></p>
+                <div class="options" id="options-container"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== 结果页 ==================== -->
+    <main class="container hidden" id="result-page">
+        <div class="result-content">
+            <div class="result-header">
+                <div class="type-letters" id="type-letters"></div>
+                <h2 class="result-title" id="result-title"></h2>
+                <p class="result-brief" id="result-brief"></p>
+            </div>
+
+            <div class="result-dimensions" id="result-dimensions"></div>
+
+            <div class="result-detail">
+                <h3 class="section-heading">
+                    <span class="heading-dot"></span>
+                    性格解读
+                </h3>
+                <div class="detail-body" id="detail-content"></div>
+            </div>
+
+            <div class="result-traits-section">
+                <h3 class="section-heading">
+                    <span class="heading-dot"></span>
+                    核心特质
+                </h3>
+                <div class="trait-grid" id="result-traits"></div>
+            </div>
+
+            <div class="result-footer">
+                <button class="btn btn-secondary" onclick="resetTest()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                    <span>重新测试</span>
+                </button>
+                <button class="btn btn-primary" onclick="shareResult()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+                    <span>分享结果</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 答题卡模态 -->
+    <div class="sheet-overlay hidden" id="sheet-overlay" onclick="closeSheetOutside(event)">
+        <div class="sheet-modal">
+            <div class="sheet-header">
+                <span class="sheet-title">答题卡</span>
+                <button class="sheet-close" onclick="toggleAnswerSheet()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="sheet-body">
+                <div class="sheet-grid" id="sheet-grid"></div>
+            </div>
+            <div class="sheet-footer">
+                <span class="sheet-stat" id="sheet-stat">已答 0 / 60</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
